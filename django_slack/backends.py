@@ -25,6 +25,7 @@ class UrllibBackend(Backend):
         result = r.read().decode('utf-8')
 
         self.validate(r.headers['content-type'], result)
+        return result
 
 
 class RequestsBackend(Backend):

@@ -131,3 +131,45 @@ def slack_message(template, context=None, attachments=None, fail_silently=None, 
     except Exception:
         if not fail_silently:
             raise
+
+def slack_users_list(fail_silently=None, *args, **kwargs):
+    data = {}
+    backend = get_backend(name=kwargs.pop('backend', None))
+
+    if fail_silently is None:
+        fail_silently = app_settings.FAIL_SILENTLY
+
+    NOT_REQUIRED, DEFAULT_ENDPOINT, ALWAYS = range(3)
+
+    PARAMS = {
+        'token': {
+            'default': app_settings.TOKEN,
+            'required': DEFAULT_ENDPOINT,
+        },
+    }
+
+    for k, v in PARAMS.items():
+        # First, set from default if we have one
+        if v['default']:
+            data[k] = v['default']
+
+        # Check if paramater is required
+        if v['required'] == ALWAYS:
+            if data.get(k, None):
+                continue
+
+            if fail_silently:
+                return
+
+            raise ValueError(
+                "Missing or empty required parameter: {}".format(k)
+            )
+
+    endpoint_url = 'https://slack.com/api/users.list'
+
+    try:
+        reply = json.loads(backend.send(endpoint_url, data, **kwargs))
+        return reply
+    except Exception:
+        if not fail_silently:
+            raise

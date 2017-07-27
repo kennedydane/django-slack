@@ -307,4 +307,4 @@ to store messages to inspect them later::
     assert messages[0]['text'] == expected_text
 """
 
-from .api import slack_message
+from .api import slack_message, slack_users_list
